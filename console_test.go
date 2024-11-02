@@ -68,3 +68,18 @@ func ExampleConsole() {
 	// warn: hello planet=world args=10
 	// error: hello world planet=world args=10
 }
+
+func ExampleLogger() {
+	console := logs.Console(os.Stdout).Color(color.Ignore()).Path(false)
+	log := slog.New(console)
+	var logger *slog.Logger = log
+	logger.WithGroup("hello").Debug("world", "args", 10)
+	logger.Info("hello", "planet", "world", "args", 10)
+	logger.Warn("hello", "planet", "world", "args", 10)
+	logger.Error("hello world", slog.String("planet", "world"), "args", 10)
+	// Output:
+	// debug: world hello.args=10
+	// info: hello planet=world args=10
+	// warn: hello planet=world args=10
+	// error: hello world planet=world args=10
+}
