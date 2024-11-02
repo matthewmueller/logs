@@ -2,14 +2,24 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/matthewmueller/logs.svg)](https://pkg.go.dev/github.com/matthewmueller/logs)
 
-Simple logger for your Go apps.
+Simple, pretty logger for your Go apps.
+
+```go
+log := logs.Default()
+log.WithGroup("grouped").Debug("debug line", "path", "console_test.go")
+log.Info("some info")
+log.Warn("some warning")
+log.Error("an error", "err", errors.New("oh no"))
+```
+
+![log screenshot](https://github.com/user-attachments/assets/8b108829-8dbc-4a50-86c5-94363d1dca7b)
 
 ## Features
 
 - Compatible with [slog](https://go.dev/blog/slog)
 - Pretty `console` handler for terminals
 - Adds a level filter handler
-- Adds a multi-logger
+- Adds a concurrent multi-logger
 
 ## Install
 
