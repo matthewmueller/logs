@@ -73,7 +73,9 @@ func (c *ConsoleHandler) Handle(ctx context.Context, record slog.Record) error {
 		enc.EncodeKeyval("path", caller(record.PC))
 	}
 	enc.Reset()
-	msg.WriteString(" " + c.color.Dim(fields.String()))
+	if fields.Len() > 0 {
+		msg.WriteString(" " + c.color.Dim(fields.String()))
+	}
 	msg.WriteString("\n")
 
 	// Write out

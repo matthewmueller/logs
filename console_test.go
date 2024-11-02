@@ -2,6 +2,7 @@ package logs_test
 
 import (
 	"bytes"
+	"errors"
 	"log/slog"
 	"os"
 	"strings"
@@ -46,8 +47,8 @@ func TestConsole(t *testing.T) {
 	is := is.New(t)
 	buf := new(bytes.Buffer)
 	console := logs.Console(buf).Path(false)
-	log := slog.New(console)
-	log.WithGroup("hello").Debug("world", "args", 10)
+	log := logs.New(console)
+	log.WithGroup("group").Debug("world", "args", 10)
 	log.Info("hello", "planet", "world", "args", 10)
 	log.Warn("hello", "planet", "world", "args", 10)
 	log.Error("hello world", "planet", "world", "args", 10)
@@ -57,21 +58,21 @@ func TestConsole(t *testing.T) {
 
 func ExampleConsole() {
 	console := logs.Console(os.Stdout).Color(color.Ignore()).Path(false)
-	log := slog.New(console)
-	log.WithGroup("hello").Debug("world", "args", 10)
-	log.Info("hello", "planet", "world", "args", 10)
-	log.Warn("hello", "planet", "world", "args", 10)
-	log.Error("hello world", slog.String("planet", "world"), "args", 10)
+	log := logs.New(console)
+	log.WithGroup("grouped").Debug("debug line", "path", "console_test.go")
+	log.Info("some info")
+	log.Warn("some warning")
+	log.Error("an error", "err", errors.New("oh no"))
 	// Output:
-	// debug: world hello.args=10
-	// info: hello planet=world args=10
-	// warn: hello planet=world args=10
-	// error: hello world planet=world args=10
+	// debug: debug line grouped.path=console_test.go
+	// info: some info
+	// warn: some warning
+	// error: an error err="oh no"
 }
 
 func ExampleLogger() {
 	console := logs.Console(os.Stdout).Color(color.Ignore()).Path(false)
-	log := slog.New(console)
+	log := logs.New(console)
 	var logger *slog.Logger = log
 	logger.WithGroup("hello").Debug("world", "args", 10)
 	logger.Info("hello", "planet", "world", "args", 10)
