@@ -18,19 +18,21 @@ func Console(w io.Writer) *ConsoleHandler {
 	c := &ConsoleHandler{
 		writer: w,
 		Color:  color.Default(),
-		Path:   false,
+		Source: false,
 	}
 	return c
 }
 
 // ConsoleHandler handler for printing logs to the terminal
 type ConsoleHandler struct {
-	writer io.Writer
 	Color  color.Writer
-	Path   bool
+	Source bool
+
+	// mu protects the writer
+	mu     sync.Mutex
+	writer io.Writer
 
 	// private fields
-	mu     sync.Mutex // mu protects the writer
 	attrs  []slog.Attr
 	groups []string
 }
@@ -49,18 +51,26 @@ func (c *ConsoleHandler) Handle(ctx context.Context, record slog.Record) error {
 	// Format and log the fields
 	fields := new(strings.Builder)
 	enc := logfmt.NewEncoder(fields)
+	prefix := strings.Join(c.groups, ".")
 	if record.NumAttrs() > 0 {
-		prefix := strings.Join(c.groups, ".")
 		record.Attrs(func(attr slog.Attr) bool {
+			key := attr.Key
 			if prefix != "" {
-				attr.Key = prefix + "." + attr.Key
+				key = prefix + "." + key
 			}
-			enc.EncodeKeyval(attr.Key, attr.Value.String())
+			enc.EncodeKeyval(key, attr.Value.String())
 			return true
 		})
 	}
-	if c.Path {
-		enc.EncodeKeyval("path", caller(record.PC))
+	for _, attr := range c.attrs {
+		key := attr.Key
+		if prefix != "" {
+			key = prefix + "." + key
+		}
+		enc.EncodeKeyval(key, attr.Value.String())
+	}
+	if c.Source {
+		enc.EncodeKeyval(slog.SourceKey, caller(record.PC))
 	}
 	enc.Reset()
 	if fields.Len() > 0 {
@@ -86,9 +96,10 @@ func (c *ConsoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &ConsoleHandler{
 		writer: c.writer,
 		Color:  c.Color,
-		Path:   c.Path,
+		Source: c.Source,
 		groups: c.groups,
-		attrs:  append(append([]slog.Attr{}, c.attrs...), attrs...),
+		// Prioritize the new attributes over the old ones
+		attrs: uniqueAttrs(append(attrs, c.attrs...)),
 	}
 }
 
@@ -96,9 +107,9 @@ func (c *ConsoleHandler) WithGroup(group string) slog.Handler {
 	return &ConsoleHandler{
 		writer: c.writer,
 		Color:  c.Color,
-		Path:   c.Path,
+		Source: c.Source,
+		groups: append(c.groups, group),
 		attrs:  c.attrs,
-		groups: append(append([]string{}, c.groups...), group),
 	}
 }
 

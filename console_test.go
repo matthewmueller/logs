@@ -57,6 +57,53 @@ func TestConsole(t *testing.T) {
 	is.Equal(len(lines), 4)
 }
 
+func TestConsoleWith(t *testing.T) {
+	is := is.New(t)
+	buf := new(bytes.Buffer)
+	console := logs.Console(buf)
+	console.Color = color.Ignore()
+	log := logs.New(console)
+	log.With("planet", "world").Info("hello", "args", 10, "args", 20)
+	log.With("planet", "world").Warn("hello", "args", 10)
+	log.With("planet", "world").Error("hello", "args", 10)
+	lines := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
+	is.Equal(len(lines), 3)
+	is.Equal(string(lines[0]), "info: hello args=10 args=20 planet=world")
+	is.Equal(string(lines[1]), "warn: hello args=10 planet=world")
+	is.Equal(string(lines[2]), "error: hello args=10 planet=world")
+}
+
+func TestConsoleDedupe(t *testing.T) {
+	is := is.New(t)
+	buf := new(bytes.Buffer)
+	console := logs.Console(buf)
+	console.Color = color.Ignore()
+	log := logs.New(console)
+	log.With("planet", "earth").With("planet", "mars").Info("hello", "args", 10, "args", 20)
+	lines := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
+	is.Equal(len(lines), 1)
+	// Only attributes added via With are deduped.
+	is.Equal(string(lines[0]), "info: hello args=10 args=20 planet=mars")
+}
+
+func TestGroup(t *testing.T) {
+	is := is.New(t)
+	buf := new(bytes.Buffer)
+	console := logs.Console(buf)
+	console.Color = color.Ignore()
+	log := logs.New(console)
+	l1 := log.WithGroup("one")
+	l1.Debug("world", "args", 10)
+	l2 := log.WithGroup("two").WithGroup("three")
+	l2.Debug("hello", "args", 10)
+	l1.Info("hello", "amount", 20)
+	lines := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
+	is.Equal(len(lines), 3)
+	is.Equal(string(lines[0]), "debug: world one.args=10")
+	is.Equal(string(lines[1]), "debug: hello two.three.args=10")
+	is.Equal(string(lines[2]), "info: hello one.amount=20")
+}
+
 func ExampleConsole() {
 	console := logs.Console(os.Stdout)
 	console.Color = color.Ignore()
