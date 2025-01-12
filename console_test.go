@@ -144,3 +144,9 @@ func ExampleLogger() {
 	// warn: hello planet=world args=10
 	// error: hello world planet=world args=10
 }
+
+func ExampleDefault() {
+	logs.Info("hello", "planet", "world", "args", 10)
+	// No output because default logger logs to stderr
+	// Output:
+}
