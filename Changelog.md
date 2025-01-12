@@ -1,3 +1,9 @@
+# 0.0.5 / 2025-01-12
+
+- fix: support `logger.With(...)` attrs in console handler
+- new: dedupe attrs passed in `logger.With(...)` in console handler
+- new: add `logs.Scope(logger)` key for annotating functions with `scope=<file>.<function>:<line>`
+
 # 0.0.4 / 2025-01-12
 
 - add discard logger
