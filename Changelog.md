@@ -1,3 +1,9 @@
+# 0.0.4 / 2025-01-12
+
+- add discard logger
+- remove path attr by default
+- replace fluent api
+
 # 0.0.3 / 2024-11-03
 
 - add a license
