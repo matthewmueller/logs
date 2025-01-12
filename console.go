@@ -17,8 +17,8 @@ import (
 func Console(w io.Writer) *ConsoleHandler {
 	c := &ConsoleHandler{
 		writer: w,
-		color:  color.Default(),
-		path:   true,
+		Color:  color.Default(),
+		Path:   false,
 	}
 	return c
 }
@@ -26,8 +26,8 @@ func Console(w io.Writer) *ConsoleHandler {
 // ConsoleHandler handler for printing logs to the terminal
 type ConsoleHandler struct {
 	writer io.Writer
-	color  color.Writer
-	path   bool
+	Color  color.Writer
+	Path   bool
 
 	// private fields
 	mu     sync.Mutex // mu protects the writer
@@ -37,16 +37,6 @@ type ConsoleHandler struct {
 
 var _ slog.Handler = (*ConsoleHandler)(nil)
 
-func (c *ConsoleHandler) Color(color color.Writer) *ConsoleHandler {
-	c.color = color
-	return c
-}
-
-func (c *ConsoleHandler) Path(path bool) *ConsoleHandler {
-	c.path = path
-	return c
-}
-
 // Enabled is always set to true. Use log.Filter to filter out log levels
 func (c *ConsoleHandler) Enabled(context.Context, slog.Level) bool {
 	return true
@@ -55,7 +45,7 @@ func (c *ConsoleHandler) Enabled(context.Context, slog.Level) bool {
 func (c *ConsoleHandler) Handle(ctx context.Context, record slog.Record) error {
 	// Format the message
 	msg := new(strings.Builder)
-	msg.WriteString(prefix(c.color, record.Level) + " " + record.Message)
+	msg.WriteString(prefix(c.Color, record.Level) + " " + record.Message)
 	// Format and log the fields
 	fields := new(strings.Builder)
 	enc := logfmt.NewEncoder(fields)
@@ -69,12 +59,12 @@ func (c *ConsoleHandler) Handle(ctx context.Context, record slog.Record) error {
 			return true
 		})
 	}
-	if c.path {
+	if c.Path {
 		enc.EncodeKeyval("path", caller(record.PC))
 	}
 	enc.Reset()
 	if fields.Len() > 0 {
-		msg.WriteString(" " + c.color.Dim(fields.String()))
+		msg.WriteString(" " + c.Color.Dim(fields.String()))
 	}
 	msg.WriteString("\n")
 
@@ -95,8 +85,8 @@ func caller(pc uintptr) string {
 func (c *ConsoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &ConsoleHandler{
 		writer: c.writer,
-		color:  c.color,
-		path:   c.path,
+		Color:  c.Color,
+		Path:   c.Path,
 		groups: c.groups,
 		attrs:  append(append([]slog.Attr{}, c.attrs...), attrs...),
 	}
@@ -105,8 +95,8 @@ func (c *ConsoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 func (c *ConsoleHandler) WithGroup(group string) slog.Handler {
 	return &ConsoleHandler{
 		writer: c.writer,
-		color:  c.color,
-		path:   c.path,
+		Color:  c.Color,
+		Path:   c.Path,
 		attrs:  c.attrs,
 		groups: append(append([]string{}, c.groups...), group),
 	}

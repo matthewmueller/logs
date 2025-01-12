@@ -18,7 +18,8 @@ func TestConsoleHandler(t *testing.T) {
 	t.Skip("skip until: https://github.com/golang/go/issues/61706")
 	is := is.New(t)
 	buf := new(bytes.Buffer)
-	console := logs.Console(buf).Color(color.Ignore())
+	console := logs.Console(buf)
+	console.Color = color.Ignore()
 	err := slogtest.TestHandler(console, func() []map[string]any {
 		lines := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
 		results := make([]map[string]any, len(lines))
@@ -46,7 +47,7 @@ func TestConsoleHandler(t *testing.T) {
 func TestConsole(t *testing.T) {
 	is := is.New(t)
 	buf := new(bytes.Buffer)
-	console := logs.Console(buf).Path(false)
+	console := logs.Console(buf)
 	log := logs.New(console)
 	log.WithGroup("group").Debug("world", "args", 10)
 	log.Info("hello", "planet", "world", "args", 10)
@@ -57,7 +58,8 @@ func TestConsole(t *testing.T) {
 }
 
 func ExampleConsole() {
-	console := logs.Console(os.Stdout).Color(color.Ignore()).Path(false)
+	console := logs.Console(os.Stdout)
+	console.Color = color.Ignore()
 	log := logs.New(console)
 	log.WithGroup("grouped").Debug("debug line", "path", "console_test.go")
 	log.Info("some info")
@@ -70,8 +72,19 @@ func ExampleConsole() {
 	// error: an error err="oh no"
 }
 
+func ExampleDiscard() {
+	log := logs.Discard()
+	var logger *slog.Logger = log
+	logger.WithGroup("hello").Debug("world", "args", 10)
+	logger.Info("hello", "planet", "world", "args", 10)
+	logger.Warn("hello", "planet", "world", "args", 10)
+	logger.Error("hello world", slog.String("planet", "world"), "args", 10)
+	// Output:
+}
+
 func ExampleLogger() {
-	console := logs.Console(os.Stdout).Color(color.Ignore()).Path(false)
+	console := logs.Console(os.Stdout)
+	console.Color = color.Ignore()
 	log := logs.New(console)
 	var logger *slog.Logger = log
 	logger.WithGroup("hello").Debug("world", "args", 10)

@@ -18,6 +18,7 @@ func TestMulti(t *testing.T) {
 	buf1 := new(bytes.Buffer)
 	buf2 := new(bytes.Buffer)
 	date := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
+	console := logs.Console(buf2)
 	log := slog.New(logs.Multi(
 		slog.NewJSONHandler(buf1, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
@@ -28,7 +29,7 @@ func TestMulti(t *testing.T) {
 				return a
 			},
 		}),
-		logs.Filter(slog.LevelInfo, logs.Console(buf2).Path(false)),
+		logs.Filter(slog.LevelInfo, console),
 	))
 	log.Debug("hello", "args", 10)
 	log.Info("hello", "planet", "world", "args", 10)
@@ -48,8 +49,9 @@ func TestMulti(t *testing.T) {
 }
 
 func ExampleMulti() {
+	console := logs.Console(os.Stderr)
 	log := slog.New(logs.Multi(
-		logs.Filter(slog.LevelInfo, logs.Console(os.Stderr).Path(false)),
+		logs.Filter(slog.LevelInfo, console),
 		slog.NewJSONHandler(os.Stderr, nil),
 	))
 	log.WithGroup("hello").Debug("world", "args", 10)
