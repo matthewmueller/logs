@@ -1,3 +1,11 @@
+# 0.0.6 / 2025-01-12
+
+- add global default logger methods:
+  - Debug, DebugContext
+  - Info, InfoContext
+  - Warn, WarnContext
+  - Error, ErrorContext
+
 # 0.0.5 / 2025-01-12
 
 - fix: support `logger.With(...)` attrs in console handler
