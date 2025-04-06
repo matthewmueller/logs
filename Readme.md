@@ -51,7 +51,7 @@ var logger *slog.Logger = log
 logger.WithGroup("hello").Debug("world", "args", 10)
 logger.Info("hello", "planet", "world", "args", 10)
 logger.Warn("hello", "planet", "world", "args", 10)
-logger.Error("hello world", slog.String("planet", "world"), "args", 10)
+logger.Error("hello world", logs.String("planet", "world"), "args", 10)
 ```
 
 ## Contributors

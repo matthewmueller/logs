@@ -104,6 +104,20 @@ func TestGroup(t *testing.T) {
 	is.Equal(string(lines[2]), "info: hello one.amount=20")
 }
 
+func TestSource(t *testing.T) {
+	slog.NewJSONHandler(os.Stdout, nil)
+	is := is.New(t)
+	buf := new(bytes.Buffer)
+	console := logs.Console(buf)
+	console.Color = color.Ignore()
+	console.Source = true
+	log := logs.New(console)
+	log.WithGroup("one").WithGroup("two").WithGroup("three").Info("hello", "args", 10)
+	lines := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
+	is.Equal(len(lines), 1)
+	is.True(strings.Contains(string(lines[0]), "source=console_test.go"))
+}
+
 func ExampleConsole() {
 	console := logs.Console(os.Stdout)
 	console.Color = color.Ignore()
@@ -125,7 +139,7 @@ func ExampleDiscard() {
 	logger.WithGroup("hello").Debug("world", "args", 10)
 	logger.Info("hello", "planet", "world", "args", 10)
 	logger.Warn("hello", "planet", "world", "args", 10)
-	logger.Error("hello world", slog.String("planet", "world"), "args", 10)
+	logger.Error("hello world", logs.String("planet", "world"), "args", 10)
 	// Output:
 }
 
@@ -137,16 +151,10 @@ func ExampleLogger() {
 	logger.WithGroup("hello").Debug("world", "args", 10)
 	logger.Info("hello", "planet", "world", "args", 10)
 	logger.Warn("hello", "planet", "world", "args", 10)
-	logger.Error("hello world", slog.String("planet", "world"), "args", 10)
+	logger.Error("hello world", logs.String("planet", "world"), "args", 10)
 	// Output:
 	// debug: world hello.args=10
 	// info: hello planet=world args=10
 	// warn: hello planet=world args=10
 	// error: hello world planet=world args=10
-}
-
-func ExampleDefault() {
-	logs.Info("hello", "planet", "world", "args", 10)
-	// No output because default logger logs to stderr
-	// Output:
 }
