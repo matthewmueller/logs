@@ -1,3 +1,11 @@
+# 0.0.7 / 2025-05-23
+
+- **BREAKING**: `logs.Default()` now logs at the info level
+- **Breaking**: `logs.Discard()` now returns a `slog.Handler` instead of a `*slog.Logger`.
+- **Breaking**: removed `logs.Info`, `logs.Error`, `logs.Debug` and `logs.Warn`
+- **Fixed**: duplicate attrs bug
+- **Added**: `slog.MustParseLevel`, `slog.Err(err)` attribute, `slog.Fatal(err)`
+
 # 0.0.6 / 2025-01-12
 
 - add global default logger methods:
