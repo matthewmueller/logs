@@ -12,6 +12,6 @@ func (discard) Handle(context.Context, slog.Record) error { return nil }
 func (discard) WithAttrs([]slog.Attr) slog.Handler        { return discard{} }
 func (discard) WithGroup(string) slog.Handler             { return discard{} }
 
-func Discard() *Logger {
-	return slog.New(discard{})
+func Discard() slog.Handler {
+	return discard{}
 }

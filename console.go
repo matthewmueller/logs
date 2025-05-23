@@ -99,7 +99,7 @@ func (c *ConsoleHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 		Source: c.Source,
 		groups: c.groups,
 		// Prioritize the new attributes over the old ones
-		attrs: uniqueAttrs(append(attrs, c.attrs...)),
+		attrs: uniqueAttrs(append(c.attrs, attrs...)),
 	}
 }
 

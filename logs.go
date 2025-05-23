@@ -1,61 +1,32 @@
 package logs
 
 import (
-	"context"
 	"log/slog"
 	"os"
 )
 
 type Handler = slog.Handler
 type Logger = slog.Logger
+type Record = slog.Record
 
 func New(handler slog.Handler) *Logger {
 	return slog.New(handler)
 }
 
+// Default logger writes to stderr at the info level by default. This can be
+// adjusted by setting the LOG environment variable to one of the levels:
+// debug, info, warn or error.
 func Default() *Logger {
-	console := Console(os.Stderr)
-	return slog.New(console)
+	level := LevelInfo
+	if lvl, ok := parseLevel(os.Getenv("LOG")); ok {
+		level = lvl
+	}
+	return slog.New(Filter(level, Console(os.Stderr)))
 }
 
-var defaultLogger = Default()
-
-// Debug calls [Logger.Debug] on the default logger.
-func Debug(msg string, args ...any) {
-	defaultLogger.Debug(msg, args...)
-}
-
-// DebugContext calls [Logger.DebugContext] on the default logger.
-func DebugContext(ctx context.Context, msg string, args ...any) {
-	defaultLogger.DebugContext(ctx, msg, args...)
-}
-
-// Info calls [Logger.Info] on the default logger.
-func Info(msg string, args ...any) {
-	defaultLogger.Info(msg, args...)
-}
-
-// InfoContext calls [Logger.InfoContext] on the default logger.
-func InfoContext(ctx context.Context, msg string, args ...any) {
-	defaultLogger.InfoContext(ctx, msg, args...)
-}
-
-// Warn calls [Logger.Warn] on the default logger.
-func Warn(msg string, args ...any) {
-	defaultLogger.Warn(msg, args...)
-}
-
-// WarnContext calls [Logger.WarnContext] on the default logger.
-func WarnContext(ctx context.Context, msg string, args ...any) {
-	defaultLogger.WarnContext(ctx, msg, args...)
-}
-
-// Error calls [Logger.Error] on the default logger.
-func Error(msg string, args ...any) {
-	defaultLogger.Error(msg, args...)
-}
-
-// ErrorContext calls [Logger.ErrorContext] on the default logger.
-func ErrorContext(ctx context.Context, msg string, args ...any) {
-	defaultLogger.ErrorContext(ctx, msg, args...)
+// Fatal calls the default logger and exits with status code 1. Only intended
+// for use in main functions or top-level handlers.
+func Fatal(err error) {
+	Default().Error(err.Error())
+	os.Exit(1)
 }
