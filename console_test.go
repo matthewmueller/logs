@@ -134,7 +134,7 @@ func ExampleConsole() {
 }
 
 func ExampleDiscard() {
-	log := slog.New(logs.Discard())
+	log := logs.Discard()
 	log.WithGroup("hello").Debug("world", "args", 10)
 	log.Info("hello", "planet", "world", "args", 10)
 	log.Warn("hello", "planet", "world", "args", 10)
