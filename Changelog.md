@@ -1,3 +1,7 @@
+# 0.0.8 / 2025-05-25
+
+- **BREAKING**: switch back to `Discard()` returning a `*slog.Logger`
+
 # 0.0.7 / 2025-05-23
 
 - **BREAKING**: `logs.Default()` now logs at the info level
